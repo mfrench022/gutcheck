@@ -1,0 +1,22 @@
+{
+	"name": "Amazon Gut Check",
+	"description": "This extension helps you reduce impulse shopping on Amazon and find places to buy the same products nearby.",
+	"version": "1.0",
+	"manifest_version": 3,
+
+	"icons": {
+    "16": "images/icon-16.png",
+    "32": "images/icon-32.png",
+    "48": "images/icon-48.png",
+    "128": "images/icon-128.png"
+  },
+
+
+	"content_scripts": [
+		{	"matches": ["*://www.amazon.com/*/dp/*", "*://www.amazon.com/dp/*"],
+			"js": ["content.js"],
+			"css":["style.css"],
+			"run_at": "document_idle"
+		}
+	]
+}
