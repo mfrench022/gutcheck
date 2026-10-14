@@ -1,9 +1,3 @@
-// I used the following tutorials, along with Eric's recorded lecture, to develop the JSON file that identifies amazon product pages and displays insert below:
-// https://developer.chrome.com/docs/extensions/get-started/tutorial/hello-world
-// https://developer.chrome.com/docs/extensions/develop/concepts/match-patterns
-// https://developer.chrome.com/docs/extensions/develop/concepts/content-scripts
-// https://developer.chrome.com/docs/extensions/get-started/tutorial/scripts-on-every-tab
-
 // Variables
 let popup = "gutcheck"
 let highlightClass = "gutcheck-highlight"
@@ -30,23 +24,9 @@ function getProductTitle () {
 
 // Create popup HTML + link buttons for different search engines
 function createPopup(productTitle) {
-	// Did a google search for how to best insert a string into a URL and found the encodeURIComponent, which I used to embed the product name into a google search
-	// I used MDN to determine wether or not to use encodeURI vs encodeURIComponent: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent
-	// I used encodeURIComponent because it will correctly interpret the spacing and special characters like &
 	// Added 'in stock' to improve local specificity
 	let googleSearch = encodeURIComponent(productTitle + " near me in stock")
 	let googleURL = `https://www.google.com/search?q=${googleSearch}&tbm=shop`
-	// ^^ Had to go down a rabbit hole on Moz to find out that all shopping traffic on google containes the parameter 'tbm=shop': https://moz.com/blog/tracking-google-shopping-traffic-with-google-analytics-14244
-	// Using this parameter I can automatically funnel users into shopping search results
-
-	// I asked ChatGPT to help me identify the best way to toggle on the 'nearby' filter within google shopping by default: https://chatgpt.com/share/69d6976f-031c-8332-9b58-d36e81d287dc
-	// Unfortunately the short answer was that I can't reliably force the nearby toggle on Google shopping via the URL
-
-	// This did make me think of another possibility to bypass google shopping altogether, and to just do a google map search for the product name. In that case, the js variables would be:
-	
-	// I used ChatGPT to help me come up with some alternate search engines and ways of filtering results to add as alternative buttons in the dropdown: https://chatgpt.com/share/69dfda87-75ac-83ea-b4bb-62da792c3614
-	
-	// I followed up by asking the LLM to find the unique search queries for different websites (without writing any code): https://chatgpt.com/share/69dfda87-75ac-83ea-b4bb-62da792c3614
 
 	let googleMapsSearch = encodeURIComponent(productTitle)
 	let googleMapsURL = `https://www.google.com/maps/search/${googleMapsSearch}`
@@ -61,7 +41,7 @@ function createPopup(productTitle) {
 	return `
 		<div id ="${popup}" class="a-box">
 			<section class="headerrow">
-				<h1>Gut Check</h1>
+				<h1>GutCheck</h1>
 				<svg id="gutcheck-header-icon" width="34" height="32" viewBox="0 0 34 32" fill="none" xmlns="http://www.w3.org/2000/svg">
 				<path d="M23.04 31C24.1998 31 25.14 30.0598 25.14 28.9C25.14 27.7402 24.1998 26.8 23.04 26.8C21.8802 26.8 20.94 27.7402 20.94 28.9C20.94 30.0598 21.8802 31 23.04 31Z" stroke="#0F1111" stroke-width="2" stroke-miterlimit="10"/>
 				<path d="M13.68 31C14.8398 31 15.78 30.0598 15.78 28.9C15.78 27.7402 14.8398 26.8 13.68 26.8C12.5202 26.8 11.58 27.7402 11.58 28.9C11.58 30.0598 12.5202 31 13.68 31Z" stroke="#0F1111" stroke-width="2" stroke-miterlimit="10"/>
@@ -72,8 +52,6 @@ function createPopup(productTitle) {
 				<path d="M21.51 5.37V11.89" stroke="#0F1111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 				</svg>
 			</section>
-
-			<p class="emphasis">Do you <span>really</span> need this today?</p>
 
 			<p>
 				Search for similar products, check if this product is available in your area, or shop secondhand:
@@ -112,11 +90,6 @@ function createPopup(productTitle) {
 		</div>
 	` 
 }
-
-
-// Per Michael's suggestion, I am writing a mutation observer to detect any attribute changes to the product, like if the user selects a different color option. I am basing this code off of MDN's example: https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver/
-
-// I used ChatGPT to help me identify elements/class names/ID names in the Amazon codebase that I can target with the mutation observer: https://chatgpt.com/share/69e7eef7-2850-83e8-8153-715db83966b3
 
 function watchAmazonChanges() {
 	// Select the node that will be observed for mutations (in this case, the body of the Amazon page)
@@ -163,7 +136,6 @@ function watchAmazonChanges() {
 				})
 			}
 
-			// Had to remind myself what the || operator does: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_OR
 			if (changedOption || popupWasRemoved) {
 				clearTimeout(timer)
 				timer = window.setTimeout(insertPopup, 500)
@@ -177,7 +149,6 @@ function watchAmazonChanges() {
 
 
 // Swap icon when user clicks a search option
-// Adapted from event listener and if else demos on course site/
 function gutcheckIconSwap(gutcheckElement) {
 	gutcheckElement.addEventListener("click", function (event) {
 		if (gutcheckElement.dataset.headerIcon === "check") {
@@ -210,7 +181,7 @@ function gutcheckIconSwap(gutcheckElement) {
 	})
 }
 
-// Event listener for mouseEnter/mouseLeave on Amazon buy now buttons, adapted from course site
+// Event listener for mouseEnter/mouseLeave on Amazon buy now buttons
 function addHighlight() {
 	let popupElement = document.getElementById(popup)
 
@@ -257,8 +228,6 @@ function insertPopup() {
 	}
 
 	let buyNowButton = addToCartButton.closest(".a-button")
-	// ^ Used closest element here because Amazon sometimes (but not always) wraps the button, so I needed to target the more general .a-button tag in those 
-	// I had to google how to do this, which led me to the closest() element on MDN: https://developer.mozilla.org/en-US/docs/Web/API/Element/closest
 
 	if (!buyNowButton) {
 		return
@@ -274,8 +243,6 @@ function insertPopup() {
 		gutcheckIconSwap(gutcheckElement)
 		triggerHighlight()
 		gutcheckElement.classList.add(highlightClass)
-		
-		// Had to google how to remove the highlight class after a certain amount of time: https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/setTimeout
 
 		// This removes the highlight class after 280ms, which is the duration of the shake animation.
 		window.setTimeout(() => {
